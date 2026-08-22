@@ -3,191 +3,246 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kana Race by Just Reza</title>
+    <title>Kana Race Interactive</title>
     <style>
         :root {
-            --p1-color: #3b82f6; /* Biru untuk Player 1 */
-            --p2-color: #ef4444; /* Merah untuk Player 2 */
-            --bg-color: #f8fafc;
-            --text-color: #0f172a;
+            --p1-color: #00d2ff;
+            --p2-color: #ff3366;
+            --bg-main: #0f172a;
+            --bg-panel: #1e293b;
+            --text-light: #f8fafc;
         }
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
+            background-color: var(--bg-main);
+            color: var(--text-light);
             margin: 0;
             padding: 20px;
             overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
         .header {
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
+            width: 100%;
         }
 
         .header h1 {
             margin: 0;
-            font-size: 2.5rem;
-            color: #1e293b;
+            font-size: 2.2rem;
+            color: #ffffff;
+            letter-spacing: 2px;
+            text-transform: uppercase;
         }
 
-        /* AREA BALAPAN */
+        .header p {
+            color: #94a3b8;
+            margin-top: 5px;
+        }
+
+        /* TRACK AREA */
         .track-container {
-            background-color: #334155;
-            padding: 20px;
-            border-radius: 16px;
-            margin-bottom: 40px;
+            width: 100%;
+            max-width: 1200px;
+            background-color: #111827;
+            padding: 20px 20px 20px 10px;
+            border-radius: 12px;
+            margin-bottom: 30px;
             position: relative;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            border: 1px solid #334155;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
         }
 
         .finish-line {
             position: absolute;
-            right: 50px;
-            top: 20px;
-            bottom: 20px;
-            width: 15px;
+            right: 40px;
+            top: 15px;
+            bottom: 15px;
+            width: 20px;
             background: repeating-linear-gradient(
                 45deg,
-                #ffffff,
-                #ffffff 10px,
-                #000000 10px,
-                #000000 20px
+                #fff, #fff 10px,
+                #000 10px, #000 20px
             );
             z-index: 1;
-            border-radius: 4px;
+            border-radius: 2px;
+            border: 2px solid #334155;
         }
 
         .lane {
-            height: 80px;
-            background-color: #475569;
+            height: 70px;
+            background-color: #1e293b;
             margin: 15px 0;
-            border-radius: 8px;
+            border-radius: 6px;
             position: relative;
-            border: 2px dashed #94a3b8;
+            border-bottom: 3px dashed #475569;
             display: flex;
             align-items: center;
         }
 
-        .car {
-            font-size: 50px;
-            position: absolute;
-            left: 10px;
-            /* Animasi pergerakan mobil */
-            transition: left 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-            z-index: 2;
-            user-select: none;
+        .lane:last-child {
+            border-bottom: none;
         }
 
-        /* AREA SOAL & KONTROL */
+        .car {
+            font-size: 45px;
+            position: absolute;
+            left: 10px;
+            transform: scaleX(-1); /* Membalik arah mobil ke kanan */
+            transition: left 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+            z-index: 2;
+            user-select: none;
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.4));
+        }
+
+        /* PANELS */
         .controls-container {
             display: flex;
             gap: 20px;
+            width: 100%;
             max-width: 1200px;
-            margin: 0 auto;
         }
 
         .panel {
             flex: 1;
-            background: white;
-            padding: 30px;
-            border-radius: 16px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            background: var(--bg-panel);
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.3);
             text-align: center;
             display: flex;
             flex-direction: column;
+            border: 1px solid #334155;
         }
 
-        .panel.p1 { border-top: 8px solid var(--p1-color); }
-        .panel.p2 { border-top: 8px solid var(--p2-color); }
+        .panel.p1 { border-top: 5px solid var(--p1-color); }
+        .panel.p2 { border-top: 5px solid var(--p2-color); }
 
         .panel h2 {
             margin-top: 0;
-            font-size: 1.5rem;
+            font-size: 1.2rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         .p1 h2 { color: var(--p1-color); }
         .p2 h2 { color: var(--p2-color); }
 
         .question {
-            font-size: 100px;
+            font-size: 80px;
             font-weight: bold;
-            margin: 20px 0;
-            min-height: 150px;
+            margin: 15px 0;
+            min-height: 120px;
             display: flex;
             align-items: center;
             justify-content: center;
+            color: #ffffff;
+            text-shadow: 0 4px 10px rgba(0,0,0,0.3);
         }
 
+        /* GRID TOMBOL 2x2 */
         .options-grid {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 15px;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
             margin-top: auto;
         }
 
         .option-btn {
             padding: 20px 10px;
-            font-size: 24px;
+            font-size: 28px;
             font-weight: 600;
-            border: 2px solid #e2e8f0;
-            border-radius: 12px;
-            background: white;
+            border: 1px solid #475569;
+            border-radius: 8px;
+            background: #0f172a;
+            color: #f1f5f9;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.2s ease-in-out;
         }
 
-        /* Hover efek tombol berdasarkan player */
-        .p1 .option-btn:hover { background: var(--p1-color); color: white; border-color: var(--p1-color); }
-        .p2 .option-btn:hover { background: var(--p2-color); color: white; border-color: var(--p2-color); }
+        .p1 .option-btn:hover { background: var(--p1-color); border-color: var(--p1-color); color: #000; }
+        .p2 .option-btn:hover { background: var(--p2-color); border-color: var(--p2-color); color: #fff; }
         
         .option-btn:active { transform: scale(0.95); }
 
-        /* LAYAR KEMENANGAN */
+        /* MODAL KEMENANGAN */
         .winner-screen {
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(15, 23, 42, 0.9);
-            display: none; /* Disembunyikan secara default */
+            background: rgba(15, 23, 42, 0.95);
+            display: none; 
             flex-direction: column;
             align-items: center;
             justify-content: center;
             color: white;
             z-index: 100;
+            backdrop-filter: blur(8px);
         }
 
         .winner-screen h1 {
-            font-size: 4rem;
-            margin-bottom: 30px;
+            font-size: 3.5rem;
+            margin-bottom: 40px;
             text-align: center;
+            text-shadow: 0 0 20px rgba(255,255,255,0.5);
         }
 
-        .reset-btn {
-            padding: 15px 40px;
-            font-size: 24px;
+        .modal-controls {
+            display: flex;
+            gap: 20px;
+        }
+
+        .btn {
+            padding: 15px 35px;
+            font-size: 20px;
             font-weight: bold;
-            background: #10b981;
-            color: white;
             border: none;
-            border-radius: 12px;
+            border-radius: 8px;
             cursor: pointer;
-            transition: transform 0.2s;
+            transition: transform 0.2s, background 0.2s;
+            text-transform: uppercase;
         }
 
-        .reset-btn:hover { background: #059669; transform: scale(1.05); }
+        .btn-reset {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .btn-reset:hover { background: #2563eb; transform: scale(1.05); }
+
+        .btn-selesai {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-selesai:hover { background: #dc2626; transform: scale(1.05); }
+
+        /* LAYAR SELESAI */
+        .end-screen {
+            display: none;
+            text-align: center;
+            margin-top: 100px;
+        }
+
+        .end-screen h1 {
+            font-size: 3rem;
+            color: #38bdf8;
+        }
 
     </style>
 </head>
 <body>
 
-    <div class="header">
-        <h1>🏁 Kana Racing Challenge 🏁</h1>
-        <p>Siapa cepat dan tepat, dia yang menang!</p>
+    <div class="header" id="header">
+        <h1>🏎️ Kana Racing Challenge</h1>
+        <p>Adu Cepat Hiragana & Katakana</p>
     </div>
 
     <!-- AREA TRACK -->
-    <div class="track-container">
+    <div class="track-container" id="track">
         <div class="finish-line"></div>
         <div class="lane">
             <div class="car" id="car-0">🏎️</div>
@@ -198,50 +253,75 @@
     </div>
 
     <!-- AREA PEMAIN -->
-    <div class="controls-container">
+    <div class="controls-container" id="controls">
         <!-- Player 1 -->
         <div class="panel p1">
-            <h2>Player 1 (Kiri)</h2>
+            <h2>Player 1</h2>
             <div class="question" id="question-0">-</div>
-            <div class="options-grid" id="options-0">
-                <!-- Tombol akan di-generate oleh JS -->
-            </div>
+            <div class="options-grid" id="options-0"></div>
         </div>
 
         <!-- Player 2 -->
         <div class="panel p2">
-            <h2>Player 2 (Kanan)</h2>
+            <h2>Player 2</h2>
             <div class="question" id="question-1">-</div>
-            <div class="options-grid" id="options-1">
-                <!-- Tombol akan di-generate oleh JS -->
-            </div>
+            <div class="options-grid" id="options-1"></div>
         </div>
     </div>
 
     <!-- LAYAR MENANG -->
     <div class="winner-screen" id="winner-screen">
         <h1 id="winner-text">Player Menang! 🎉</h1>
-        <button class="reset-btn" onclick="resetGame()">Main Lagi (Reset)</button>
+        <div class="modal-controls">
+            <button class="btn btn-reset" onclick="resetGame()">Reset</button>
+            <button class="btn btn-selesai" onclick="finishGame()">Selesai</button>
+        </div>
+    </div>
+
+    <!-- LAYAR SELESAI -->
+    <div class="end-screen" id="end-screen">
+        <h1>Terima Kasih Telah Bermain!</h1>
+        <p>Silakan muat ulang halaman untuk bermain kembali.</p>
     </div>
 
     <script>
-        // Database soal (Bisa ditambah bebas)
+        // Database Lengkap Kana (Seion, Dakuon, Handakuon, Yoon)
         const kanaData = [
-            { kana: 'あ', answer: 'a' }, { kana: 'い', answer: 'i' }, { kana: 'う', answer: 'u' }, 
-            { kana: 'え', answer: 'e' }, { kana: 'お', answer: 'o' },
-            { kana: 'か', answer: 'ka' }, { kana: 'き', answer: 'ki' }, { kana: 'く', answer: 'ku' }, 
-            { kana: 'け', answer: 'ke' }, { kana: 'こ', answer: 'ko' },
-            { kana: 'さ', answer: 'sa' }, { kana: 'し', answer: 'shi' }, { kana: 'す', answer: 'su' }, 
-            { kana: 'せ', answer: 'se' }, { kana: 'そ', answer: 'so' },
-            { kana: 'ア', answer: 'a' }, { kana: 'イ', answer: 'i' }, { kana: 'ウ', answer: 'u' }, 
-            { kana: 'エ', answer: 'e' }, { kana: 'オ', answer: 'o' }
+            // Seion
+            {h:'あ',k:'ア'}, {h:'い',k:'イ'}, {h:'う',k:'ウ'}, {h:'え',k:'エ'}, {h:'お',k:'オ'},
+            {h:'か',k:'カ'}, {h:'き',k:'キ'}, {h:'く',k:'ク'}, {h:'け',k:'ケ'}, {h:'こ',k:'コ'},
+            {h:'さ',k:'サ'}, {h:'し',k:'シ'}, {h:'す',k:'ス'}, {h:'せ',k:'セ'}, {h:'そ',k:'ソ'},
+            {h:'た',k:'タ'}, {h:'ち',k:'チ'}, {h:'つ',k:'ツ'}, {h:'て',k:'テ'}, {h:'と',k:'ト'},
+            {h:'な',k:'ナ'}, {h:'に',k:'ニ'}, {h:'ぬ',k:'ヌ'}, {h:'ね',k:'ネ'}, {h:'の',k:'ノ'},
+            {h:'は',k:'ハ'}, {h:'ひ',k:'ヒ'}, {h:'ふ',k:'フ'}, {h:'へ',k:'ヘ'}, {h:'ほ',k:'ホ'},
+            {h:'ま',k:'マ'}, {h:'み',k:'ミ'}, {h:'む',k:'ム'}, {h:'め',k:'メ'}, {h:'も',k:'モ'},
+            {h:'や',k:'ヤ'}, {h:'ゆ',k:'ユ'}, {h:'よ',k:'ヨ'},
+            {h:'ら',k:'ラ'}, {h:'り',k:'リ'}, {h:'る',k:'ル'}, {h:'れ',k:'レ'}, {h:'ろ',k:'ロ'},
+            {h:'わ',k:'ワ'}, {h:'を',k:'ヲ'}, {h:'ん',k:'ン'},
+            // Dakuon & Handakuon
+            {h:'が',k:'ガ'}, {h:'ぎ',k:'ギ'}, {h:'ぐ',k:'グ'}, {h:'げ',k:'ゲ'}, {h:'ご',k:'ゴ'},
+            {h:'ざ',k:'ザ'}, {h:'じ',k:'ジ'}, {h:'ず',k:'ズ'}, {h:'ぜ',k:'ゼ'}, {h:'ぞ',k:'ゾ'},
+            {h:'だ',k:'ダ'}, {h:'ぢ',k:'ヂ'}, {h:'づ',k:'ヅ'}, {h:'で',k:'デ'}, {h:'ど',k:'ド'},
+            {h:'ば',k:'バ'}, {h:'び',k:'ビ'}, {h:'ぶ',k:'ブ'}, {h:'べ',k:'ベ'}, {h:'ぼ',k:'ボ'},
+            {h:'ぱ',k:'パ'}, {h:'ぴ',k:'ピ'}, {h:'ぷ',k:'プ'}, {h:'ぺ',k:'ペ'}, {h:'ぽ',k:'ポ'},
+            // Yoon
+            {h:'きゃ',k:'キャ'}, {h:'きゅ',k:'キュ'}, {h:'きょ',k:'キョ'},
+            {h:'しゃ',k:'シャ'}, {h:'しゅ',k:'シュ'}, {h:'しょ',k:'ショ'},
+            {h:'ちゃ',k:'チャ'}, {h:'ちゅ',k:'チュ'}, {h:'ちょ',k:'チョ'},
+            {h:'にゃ',k:'ニャ'}, {h:'にゅ',k:'ニュ'}, {h:'にょ',k:'ニョ'},
+            {h:'ひゃ',k:'ヒャ'}, {h:'ひゅ',k:'ヒュ'}, {h:'ひょ',k:'ヒョ'},
+            {h:'みゃ',k:'ミャ'}, {h:'みゅ',k:'ミュ'}, {h:'みょ',k:'ミョ'},
+            {h:'りゃ',k:'リャ'}, {h:'りゅ',k:'リュ'}, {h:'りょ',k:'リョ'},
+            {h:'ぎゃ',k:'ギャ'}, {h:'ぎゅ',k:'ギュ'}, {h:'ぎょ',k:'ギョ'},
+            {h:'じゃ',k:'ジャ'}, {h:'じゅ',k:'ジュ'}, {h:'じょ',k:'ジョ'},
+            {h:'びゃ',k:'ビャ'}, {h:'びゅ',k:'ビュ'}, {h:'びょ',k:'ビョ'},
+            {h:'ぴゃ',k:'ピャ'}, {h:'ぴゅ',k:'ピュ'}, {h:'ぴょ',k:'ピョ'}
         ];
 
-        let scores = [0, 0]; // Index 0 = P1, Index 1 = P2
-        const MAX_SCORE = 10; // Butuh 10 jawaban benar untuk sampai garis finish
+        let scores = [0, 0];
+        const MAX_SCORE = 15; // Jarak yang harus ditempuh
         let isGameOver = false;
 
-        // Fungsi untuk mengacak array (Fisher-Yates)
         function shuffle(array) {
             let currentIndex = array.length, randomIndex;
             while (currentIndex != 0) {
@@ -252,101 +332,101 @@
             return array;
         }
 
-        // Fungsi untuk membuat soal baru untuk player tertentu (0 atau 1)
         function generateQuestion(playerIndex) {
             if (isGameOver) return;
 
-            // Ambil 1 soal benar acak
+            // Pilih data benar secara acak
             const correctData = kanaData[Math.floor(Math.random() * kanaData.length)];
             
-            // Ambil 2 jawaban salah
+            // Acak tipe soal (Hiragana -> Katakana ATAU Katakana -> Hiragana)
+            const askHiragana = Math.random() > 0.5;
+            
+            const questionText = askHiragana ? correctData.h : correctData.k;
+            const correctAnswer = askHiragana ? correctData.k : correctData.h;
+
+            // Cari 3 jawaban salah
             let wrongOptions = [];
-            while (wrongOptions.length < 2) {
-                let randomWrong = kanaData[Math.floor(Math.random() * kanaData.length)].answer;
-                if (randomWrong !== correctData.answer && !wrongOptions.includes(randomWrong)) {
+            while (wrongOptions.length < 3) {
+                let randomData = kanaData[Math.floor(Math.random() * kanaData.length)];
+                let randomWrong = askHiragana ? randomData.k : randomData.h;
+                
+                if (randomWrong !== correctAnswer && !wrongOptions.includes(randomWrong)) {
                     wrongOptions.push(randomWrong);
                 }
             }
 
-            // Gabung dan acak posisi tombol
-            let allOptions = [correctData.answer, ...wrongOptions];
+            let allOptions = [correctAnswer, ...wrongOptions];
             allOptions = shuffle(allOptions);
 
-            // Tampilkan huruf Kana di layar
-            document.getElementById(`question-${playerIndex}`).innerText = correctData.kana;
-
-            // Buat tombol pilihan ganda
+            // Update UI
+            document.getElementById(`question-${playerIndex}`).innerText = questionText;
             const optionsContainer = document.getElementById(`options-${playerIndex}`);
-            optionsContainer.innerHTML = ''; // Bersihkan tombol lama
+            optionsContainer.innerHTML = ''; 
 
             allOptions.forEach(opt => {
                 const btn = document.createElement('button');
                 btn.className = 'option-btn';
                 btn.innerText = opt;
-                btn.onclick = () => checkAnswer(playerIndex, opt, correctData.answer);
+                btn.onclick = () => checkAnswer(playerIndex, opt, correctAnswer);
                 optionsContainer.appendChild(btn);
             });
         }
 
-        // Fungsi mengecek jawaban
         function checkAnswer(playerIndex, selected, correct) {
             if (isGameOver) return;
 
             if (selected === correct) {
-                // Jika benar, tambah skor dan majukan mobil
                 scores[playerIndex]++;
                 updateCarPosition(playerIndex);
                 
-                // Cek apakah ada yang menang
                 if (scores[playerIndex] >= MAX_SCORE) {
                     endGame(playerIndex);
                 } else {
-                    // Beri soal baru jika belum menang
                     generateQuestion(playerIndex);
                 }
             } else {
-                // Jika salah, ganti soal baru (hukuman waktu terbuang membaca soal baru)
                 generateQuestion(playerIndex);
             }
         }
 
-        // Fungsi menggerakkan mobil berdasarkan skor
         function updateCarPosition(playerIndex) {
             const car = document.getElementById(`car-${playerIndex}`);
-            // Pindah posisi berdasarkan persentase (Maks 100%)
-            const percentage = (scores[playerIndex] / MAX_SCORE) * 90; // 90% supaya pas di garis finish
+            const percentage = (scores[playerIndex] / MAX_SCORE) * 90; 
             car.style.left = `calc(${percentage}% + 10px)`;
         }
 
-        // Fungsi mengakhiri game
         function endGame(winnerIndex) {
             isGameOver = true;
             const winnerScreen = document.getElementById('winner-screen');
             const winnerText = document.getElementById('winner-text');
             const playerNum = winnerIndex + 1;
+            const emoji = winnerIndex === 0 ? '🏎️' : '🚙';
             
-            winnerText.innerHTML = `🏎️ Player ${playerNum} Menang! 🎉`;
+            winnerText.innerHTML = `${emoji} Player ${playerNum} Menang!`;
             winnerScreen.style.display = 'flex';
         }
 
-        // Fungsi reset (tombol di kiri, selesai di kanan sesuai preferensimu sebelumnya, tapi karena ini pop up tengah, saya jadikan satu tombol utama)
         function resetGame() {
             scores = [0, 0];
             isGameOver = false;
             
-            // Kembalikan posisi mobil
             document.getElementById('car-0').style.left = '10px';
             document.getElementById('car-1').style.left = '10px';
             
-            // Sembunyikan layar menang
             document.getElementById('winner-screen').style.display = 'none';
             
-            // Buat soal baru untuk kedua player
             generateQuestion(0);
             generateQuestion(1);
         }
 
-        // Mulai game saat halaman dimuat
+        function finishGame() {
+            document.getElementById('winner-screen').style.display = 'none';
+            document.getElementById('header').style.display = 'none';
+            document.getElementById('track').style.display = 'none';
+            document.getElementById('controls').style.display = 'none';
+            document.getElementById('end-screen').style.display = 'block';
+        }
+
         window.onload = () => {
             generateQuestion(0);
             generateQuestion(1);
