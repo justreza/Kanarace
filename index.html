@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kana Moto GP by Just Reza</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --p1-color: #ff0055; 
+            --p1-glow: rgba(255, 0, 85, 0.5);
+            --p2-color: #00f0ff; 
+            --p2-glow: rgba(0, 240, 255, 0.5);
+            --bg-dark: #0a0a16;
+            --text-light: #f8fafc;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: radial-gradient(circle at center, #1e1e38 0%, var(--bg-dark) 100%);
+            color: var(--text-light);
+            margin: 0;
+            padding: 20px;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 15px;
+            width: 100%;
+        }
+
+        .header h1 {
+            font-family: 'Orbitron', sans-serif;
+            margin: 0;
+            font-size: 2.5rem;
+            color: #ffffff;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            text-shadow: 0 0 10px #00f0ff, 0 0 20px #00f0ff, 0 0 40px #00f0ff;
+        }
+
+        .header p {
+            color: #a1a1aa;
+            font-size: 1rem;
+            margin-top: 5px;
+            letter-spacing: 1px;
+        }
+
+        /* TIMER DI ATAS TENGAH */
+        #timer-display {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2rem;
+            color: #fbbf24;
+            margin-bottom: 20px;
+            text-align: center;
+            text-shadow: 0 0 15px rgba(251, 191, 36, 0.5);
+            letter-spacing: 2px;
+        }
+
+        /* LAYAR SETUP */
+        .setup-screen {
+            background: rgba(30, 41, 59, 0.6);
+            backdrop-filter: blur(12px);
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            margin-top: 30px;
+            width: 100%;
+            max-width: 500px;
+        }
+
+        .setup-screen h2 {
+            font-family: 'Orbitron', sans-serif;
+            margin-top: 0;
+            margin-bottom: 30px;
+            color: #fff;
+            text-shadow: 0 0 10px rgba(255,255,255,0.3);
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #cbd5e1;
+        }
+
+        .input-group input, .input-group select {
+            width: 100%;
+            padding: 12px 15px;
+            font-size: 16px;
+            font-family: 'Poppins', sans-serif;
+            border-radius: 8px;
+            border: 2px solid #475569;
+            background: rgba(15, 23, 42, 0.8);
+            color: white;
+            outline: none;
+            box-sizing: border-box;
+            transition: border-color 0.3s;
+        }
+
+        .input-group select { cursor: pointer; }
+        .input-group select option { background: #0f172a; }
+
+        .input-group input:focus, .input-group select:focus {
+            border-color: #00f0ff;
+        }
+
+        .btn-start {
+            margin-top: 20px;
+            padding: 15px 40px;
+            font-size: 20px;
+            font-weight: bold;
+            font-family: 'Orbitron', sans-serif;
+            background: linear-gradient(45deg, #00f0ff, #0066ff);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.4);
+            width: 100%;
+        }
+
+        .btn-start:hover { transform: scale(1.05); }
+
+        /* AREA GAME */
+        #game-area {
+            display: none;
+            width: 100%;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* TRACK AREA */
+        .track-container {
+            width: 100%;
+            max-width: 1200px;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            border-radius: 16px;
+            margin-bottom: 30px;
+            position: relative;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.6), inset 0 0 20px rgba(0,0,0,0.5);
+        }
+
+        .finish-line {
+            position: absolute;
+            left: 40px; 
+            top: 15px;
+            bottom: 15px;
+            width: 25px;
+            background: repeating-linear-gradient(
+                -45deg,
+                #fff, #fff 10px,
+                #111 10px, #111 20px
+            );
+            z-index: 1;
+            border-radius: 4px;
+            border: 2px solid #fff;
+            box-shadow: 0 0 15px rgba(255,255,255,0.5);
+        }
+
+        .lane {
+            height: 75px;
+            background: linear-gradient(-90deg, #111827 0%, #1e293b 100%);
+            margin: 15px 0;
+            border-radius: 8px;
+            position: relative;
+            border-bottom: 4px dashed #475569;
+            display: flex;
+            align-items: center;
+        }
+
+        .lane:last-child {
+            border-bottom: none;
+        }
+
+        .motorcycle {
+            font-size: 45px;
+            position: absolute;
+            right: 10px;
+            transition: right 0.1s linear; /* Zero-delay instan gerakan */
+            z-index: 2;
+            user-select: none;
+        }
+
+        #moto-0 { filter: drop-shadow(0 0 8px var(--p1-color)); }
+        #moto-1 { filter: drop-shadow(0 0 8px var(--p2-color)); }
+
+        /* PANELS */
+        .controls-container {
+            display: flex;
+            gap: 30px;
+            width: 100%;
+            max-width: 1200px;
+        }
+
+        .panel {
+            flex: 1;
+            background: rgba(30, 41, 59, 0.4);
+            backdrop-filter: blur(12px);
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .panel.p1 { border-top: 5px solid var(--p1-color); box-shadow: 0 10px 30px rgba(0,0,0,0.5), inset 0 30px 30px -30px var(--p1-glow); }
+        .panel.p2 { border-top: 5px solid var(--p2-color); box-shadow: 0 10px 30px rgba(0,0,0,0.5), inset 0 30px 30px -30px var(--p2-glow); }
+
+        .panel h2 {
+            font-family: 'Orbitron', sans-serif;
+            margin-top: 0;
+            font-size: 1.5rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .p1 h2 { color: var(--p1-color); text-shadow: 0 0 10px var(--p1-glow); }
+        .p2 h2 { color: var(--p2-color); text-shadow: 0 0 10px var(--p2-glow); }
+
+        .question {
+            font-size: 80px; 
+            font-weight: 700;
+            margin: 20px 0;
+            min-height: 140px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ffffff;
+            text-shadow: 0 0 20px rgba(255,255,255,0.4);
+            text-transform: lowercase;
+        }
+
+        /* GRID TOMBOL JAWABAN */
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: auto;
+        }
+
+        .option-btn {
+            font-family: 'Poppins', sans-serif;
+            padding: 15px 10px;
+            font-size: 36px;
+            font-weight: 600;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            background: rgba(15, 23, 42, 0.6);
+            color: #f1f5f9;
+            cursor: pointer;
+            transition: background 0.1s, transform 0.1s;
+            text-transform: lowercase;
+        }
+
+        .p1 .option-btn:hover { background: var(--p1-color); color: #fff; box-shadow: 0 0 15px var(--p1-color); border-color: var(--p1-color); transform: translateY(-2px); }
+        .p2 .option-btn:hover { background: var(--p2-color); color: #000; box-shadow: 0 0 15px var(--p2-color); border-color: var(--p2-color); transform: translateY(-2px); }
+        
+        .option-btn:active { transform: scale(0.95); }
+
+        /* TOMBOL RESET / ULANG DI BAWAH TENGAH */
+        .footer-nav {
+            margin-top: 30px;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+        }
+
+        .btn-reset-center {
+            font-family: 'Orbitron', sans-serif;
+            background: rgba(255, 255, 255, 0.08);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: #f8fafc;
+            padding: 12px 30px;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+
+        .btn-reset-center:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: #ffffff;
+            transform: scale(1.05);
+        }
+
+        /* MODAL KEMENANGAN (Font lebih besar) */
+        .winner-screen {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(10, 10, 22, 0.95);
+            display: none; 
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            z-index: 100;
+            backdrop-filter: blur(15px);
+            padding: 20px;
+            text-align: center;
+        }
+
+        .winner-screen h1 { 
+            font-family: 'Orbitron', sans-serif; 
+            font-size: 4.5rem; 
+            margin-bottom: 40px; 
+            text-transform: uppercase;
+            line-height: 1.2;
+            text-shadow: 0 0 30px rgba(255,255,255,0.6);
+        }
+
+        .modal-controls { display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; }
+
+        .btn {
+            font-family: 'Poppins', sans-serif;
+            padding: 16px 35px;
+            font-size: 18px;
+            font-weight: 700;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-modal-reset { background: transparent; color: var(--p1-color); border: 2px solid var(--p1-color); box-shadow: inset 0 0 10px var(--p1-glow), 0 0 10px var(--p1-glow); }
+        .btn-modal-reset:hover { background: var(--p1-color); color: #fff; transform: scale(1.05); }
+
+        .btn-menu { background: transparent; color: #00f0ff; border: 2px solid #00f0ff; box-shadow: inset 0 0 10px rgba(0,240,255,0.4), 0 0 10px rgba(0,240,255,0.4); }
+        .btn-menu:hover { background: #00f0ff; color: #000; transform: scale(1.05); }
+    </style>
+</head>
+<body>
+
+    <div class="header" id="header">
+        <h1>Kana Moto GP</h1>
+        <p>Adu Kecepatan Hiragana & Katakana</p>
+    </div>
+
+    <div class="setup-screen" id="setup-screen">
+        <h2>Persiapan Balap Motor</h2>
+        <div class="input-group">
+            <label>Mode Balapan:</label>
+            <select id="mode-select">
+                <option value="hiragana">Mode HIRAGANA</option>
+                <option value="katakana">Mode KATAKANA</option>
+            </select>
+        </div>
+        <div class="input-group">
+            <label>Rider 1 (Red Thunder - P1):</label>
+            <input type="text" id="input-p1" placeholder="Masukkan nama..." value="Rider 1">
+        </div>
+        <div class="input-group">
+            <label>Rider 2 (Blue Lightning - P2):</label>
+            <input type="text" id="input-p2" placeholder="Masukkan nama..." value="Rider 2">
+        </div>
+        <button class="btn-start" onclick="startGame()">Mulai Balapan!</button>
+    </div>
+
+    <div id="game-area">
+        <div id="timer-display">00:00</div>
+
+        <div class="track-container" id="track">
+            <div class="finish-line"></div> 
+            
+            <div class="lane">
+                <div class="motorcycle" id="moto-0">🏍️</div>
+            </div>
+            <div class="lane">
+                <div class="motorcycle" id="moto-1">🛵</div>
+            </div>
+        </div>
+
+        <div class="controls-container" id="controls">
+            <div class="panel p1">
+                <h2 id="name-p1">Rider 1</h2>
+                <div class="question" id="question-0">-</div>
+                <div class="options-grid" id="options-0"></div>
+            </div>
+
+            <div class="panel p2">
+                <h2 id="name-p2">Rider 2</h2>
+                <div class="question" id="question-1">-</div>
+                <div class="options-grid" id="options-1"></div>
+            </div>
+        </div>
+
+        <div class="footer-nav">
+            <button class="btn-reset-center" onclick="resetGameDirect()">🔄 Reset / Ulangi</button>
+        </div>
+    </div>
+
+    <div class="winner-screen" id="winner-screen">
+        <h1 id="winner-text">Menang! 🎉</h1>
+        <div class="modal-controls">
+            <button class="btn btn-modal-reset" onclick="resetGameModal()">Main Lagi</button>
+            <button class="btn btn-menu" onclick="goToMenu()">Kembali ke Menu Awal</button>
+        </div>
+    </div>
+
+    <script>
+        const kanaData = [
+            // Seion
+            {h:'あ',k:'ア',r:'a'}, {h:'い',k:'イ',r:'i'}, {h:'う',k:'ウ',r:'u'}, {h:'え',k:'エ',r:'e'}, {h:'お',k:'オ',r:'o'},
+            {h:'か',k:'カ',r:'ka'}, {h:'き',k:'キ',r:'ki'}, {h:'く',k:'ク',r:'ku'}, {h:'け',k:'ケ',r:'ke'}, {h:'こ',k:'コ',r:'ko'},
+            {h:'さ',k:'サ',r:'sa'}, {h:'し',k:'シ',r:'shi'}, {h:'す',k:'ス',r:'su'}, {h:'せ',k:'セ',r:'se'}, {h:'そ',k:'ソ',r:'so'},
+            {h:'た',k:'タ',r:'ta'}, {h:'ち',k:'チ',r:'chi'}, {h:'つ',k:'ツ',r:'tsu'}, {h:'て',k:'テ',r:'te'}, {h:'と',k:'ト',r:'to'},
+            {h:'な',k:'ナ',r:'na'}, {h:'に',k:'ニ',r:'ni'}, {h:'ぬ',k:'ヌ',r:'nu'}, {h:'ね',k:'ネ',r:'ne'}, {h:'の',k:'ノ',r:'no'},
+            {h:'は',k:'ハ',r:'ha'}, {h:'ひ',k:'ヒ',r:'hi'}, {h:'ふ',k:'フ',r:'fu'}, {h:'へ',k:'ヘ',r:'he'}, {h:'ほ',k:'ホ',r:'ho'},
+            {h:'ま',k:'マ',r:'ma'}, {h:'み',k:'ミ',r:'mi'}, {h:'む',k:'ム',r:'mu'}, {h:'め',k:'メ',r:'me'}, {h:'も',k:'モ',r:'mo'},
+            {h:'や',k:'ヤ',r:'ya'}, {h:'ゆ',k:'ユ',r:'yu'}, {h:'よ',k:'ヨ',r:'yo'},
+            {h:'ら',k:'ラ',r:'ra'}, {h:'り',k:'リ',r:'ri'}, {h:'る',k:'ル',r:'ru'}, {h:'れ',k:'レ',r:'re'}, {h:'ろ',k:'ロ',r:'ro'},
+            {h:'わ',k:'ワ',r:'wa'}, {h:'を',k:'ヲ',r:'wo'}, {h:'ん',k:'ン',r:'n'},
+            // Dakuon & Handakuon
+            {h:'が',k:'ガ',r:'ga'}, {h:'ぎ',k:'ギ',r:'gi'}, {h:'ぐ',k:'グ',r:'gu'}, {h:'げ',k:'ゲ',r:'ge'}, {h:'ご',k:'ゴ',r:'go'},
+            {h:'ざ',k:'ザ',r:'za'}, {h:'じ',k:'ジ',r:'ji'}, {h:'ず',k:'ズ',r:'zu'}, {h:'ぜ',k:'ゼ',r:'ze'}, {h:'ぞ',k:'ゾ',r:'zo'},
+            {h:'だ',k:'ダ',r:'da'}, {h:'ぢ',k:'ヂ',r:'ji'}, {h:'づ',k:'ヅ',r:'zu'}, {h:'で',k:'デ',r:'de'}, {h:'ど',k:'ド',r:'do'},
+            {h:'ば',k:'バ',r:'ba'}, {h:'び',k:'ビ',r:'bi'}, {h:'ぶ',k:'ブ',r:'bu'}, {h:'べ',k:'ベ',r:'be'}, {h:'ぼ',k:'ボ',r:'bo'},
+            {h:'ぱ',k:'パ',r:'pa'}, {h:'ぴ',k:'ピ',r:'pi'}, {h:'ぷ',k:'プ',r:'pu'}, {h:'ぺ',k:'ペ',r:'pe'}, {h:'ぽ',k:'ポ',r:'po'},
+            // Yoon
+            {h:'きゃ',k:'キャ',r:'kya'}, {h:'きゅ',k:'キュ',r:'kyu'}, {h:'きょ',k:'キョ',r:'kyo'},
+            {h:'しゃ',k:'シャ',r:'sha'}, {h:'しゅ',k:'シュ',r:'shu'}, {h:'しょ',k:'ショ',r:'sho'},
+            {h:'ちゃ',k:'チャ',r:'cha'}, {h:'ちゅ',k:'チュ',r:'chu'}, {h:'ちょ',k:'チョ',r:'cho'},
+            {h:'にゃ',k:'ニャ',r:'nya'}, {h:'にゅ',k:'ニュ',r:'nyu'}, {h:'にょ',k:'ニョ',r:'nyo'},
+            {h:'ひゃ',k:'ヒャ',r:'hya'}, {h:'ひゅ',k:'ヒュ',r:'hyu'}, {h:'ひょ',k:'ヒョ',r:'hyo'},
+            {h:'みゃ',k:'ミャ',r:'mya'}, {h:'みゅ',k:'ミュ',r:'myu'}, {h:'みょ',k:'ミョ',r:'myo'},
+            {h:'りゃ',k:'リャ',r:'rya'}, {h:'りゅ',k:'リュ',r:'ryu'}, {h:'りょ',k:'リョ',r:'ryo'},
+            {h:'ぎゃ',k:'ギャ',r:'gya'}, {h:'ぎゅ',k:'ギュ',r:'gyu'}, {h:'ぎょ',k:'ギョ',r:'gyo'},
+            {h:'じゃ',k:'ジャ',r:'ja'}, {h:'じゅ',k:'ジュ',r:'ju'}, {h:'じょ',k:'ジョ',r:'jo'},
+            {h:'びゃ',k:'ビャ',r:'bya'}, {h:'びゅ',k:'ビュ',r:'byu'}, {h:'びょ',k:'ビョ',r:'byo'},
+            {h:'ぴゃ',k:'ピャ',r:'pya'}, {h:'ぴゅ',k:'ピュ',r:'pyu'}, {h:'ぴょ',k:'ピョ',r:'pyo'}
+        ];
+
+        let scores = [0, 0];
+        const MAX_SCORE = 15; 
+        let isGameOver = false;
+        let playerNames = ["Rider 1", "Rider 2"];
+        let gameMode = "hiragana";
+        let timer = 0;
+        let timerInterval = null;
+
+        function startGame() {
+            gameMode = document.getElementById('mode-select').value;
+            const p1 = document.getElementById('input-p1').value.trim() || "Rider 1";
+            const p2 = document.getElementById('input-p2').value.trim() || "Rider 2";
+            
+            playerNames[0] = p1;
+            playerNames[1] = p2;
+
+            document.getElementById('name-p1').innerText = p1;
+            document.getElementById('name-p2').innerText = p2;
+
+            document.getElementById('setup-screen').style.display = 'none';
+            document.getElementById('game-area').style.display = 'flex';
+
+            resetGameDirect();
+        }
+
+        function shuffle(array) {
+            let currentIndex = array.length, randomIndex;
+            while (currentIndex != 0) {
+                randomIndex = Math.floor(Math.random() * currentIndex);
+                currentIndex--;
+                [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+            }
+            return array;
+        }
+
+        function generateQuestion(playerIndex) {
+            if (isGameOver) return;
+
+            const correctData = kanaData[Math.floor(Math.random() * kanaData.length)];
+            const askRomaji = Math.random() > 0.5;
+            
+            let questionText, correctAnswer;
+            
+            if (askRomaji) {
+                questionText = correctData.r; 
+                correctAnswer = (gameMode === 'hiragana') ? correctData.h : correctData.k;
+            } else {
+                questionText = (gameMode === 'hiragana') ? correctData.h : correctData.k;
+                correctAnswer = correctData.r;
+            }
+
+            let wrongOptions = [];
+            while (wrongOptions.length < 3) {
+                let randomData = kanaData[Math.floor(Math.random() * kanaData.length)];
+                let randomWrong;
+                
+                if (askRomaji) {
+                    randomWrong = (gameMode === 'hiragana') ? randomData.h : randomData.k;
+                } else {
+                    randomWrong = randomData.r;
+                }
+                
+                if (randomWrong !== correctAnswer && !wrongOptions.includes(randomWrong)) {
+                    wrongOptions.push(randomWrong);
+                }
+            }
+
+            let allOptions = [correctAnswer, ...wrongOptions];
+            allOptions = shuffle(allOptions);
+
+            document.getElementById(`question-${playerIndex}`).innerText = questionText;
+            const optionsContainer = document.getElementById(`options-${playerIndex}`);
+            optionsContainer.innerHTML = ''; 
+
+            allOptions.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.innerText = opt;
+                btn.onclick = () => checkAnswer(playerIndex, opt, correctAnswer);
+                optionsContainer.appendChild(btn);
+            });
+        }
+
+        function checkAnswer(playerIndex, selected, correct) {
+            if (isGameOver) return;
+
+            if (selected === correct) {
+                scores[playerIndex]++;
+                updateMotoPosition(playerIndex);
+                
+                if (scores[playerIndex] >= MAX_SCORE) {
+                    endGame(playerIndex);
+                } else {
+                    generateQuestion(playerIndex);
+                }
+            } else {
+                generateQuestion(playerIndex);
+            }
+        }
+
+        function updateMotoPosition(playerIndex) {
+            const moto = document.getElementById(`moto-${playerIndex}`);
+            const percentage = (scores[playerIndex] / MAX_SCORE) * 90; 
+            moto.style.right = `calc(${percentage}% + 10px)`; 
+        }
+
+        function startTimer() {
+            clearInterval(timerInterval);
+            timer = 0;
+            document.getElementById('timer-display').innerText = "00:00";
+            timerInterval = setInterval(() => {
+                timer++;
+                let minutes = Math.floor(timer / 60).toString().padStart(2, '0');
+                let seconds = (timer % 60).toString().padStart(2, '0');
+                document.getElementById('timer-display').innerText = `${minutes}:${seconds}`;
+            }, 1000);
+        }
+
+        function endGame(winnerIndex) {
+            isGameOver = true;
+            clearInterval(timerInterval);
+            const winnerScreen = document.getElementById('winner-screen');
+            const winnerText = document.getElementById('winner-text');
+            const emoji = winnerIndex === 0 ? '🏍️' : '🛵';
+            const wName = playerNames[winnerIndex];
+            
+            winnerText.style.color = winnerIndex === 0 ? 'var(--p1-color)' : 'var(--p2-color)';
+            winnerText.style.textShadow = winnerIndex === 0 ? '0 0 30px var(--p1-color)' : '0 0 30px var(--p2-color)';
+            
+            winnerText.innerHTML = `${emoji}<br>${wName} Menang!`;
+            winnerScreen.style.display = 'flex';
+        }
+
+        // Reset langsung tanpa pop-up (dari tombol bawah)
+        function resetGameDirect() {
+            scores = [0, 0];
+            isGameOver = false;
+            
+            document.getElementById('moto-0').style.right = '10px';
+            document.getElementById('moto-1').style.right = '10px';
+            
+            document.getElementById('winner-screen').style.display = 'none';
+            
+            startTimer();
+            generateQuestion(0);
+            generateQuestion(1);
+        }
+
+        // Reset dari tombol modal kemenangan (Main Lagi)
+        function resetGameModal() {
+            document.getElementById('winner-screen').style.display = 'none';
+            resetGameDirect();
+        }
+
+        // Kembali ke menu awal tanpa refresh
+        function goToMenu() {
+            clearInterval(timerInterval);
+            document.getElementById('winner-screen').style.display = 'none';
+            document.getElementById('game-area').style.display = 'none';
+            document.getElementById('setup-screen').style.display = 'block';
+        }
+    </script>
+</body>
+</html>
