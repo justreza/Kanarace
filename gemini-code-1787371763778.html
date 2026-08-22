@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kana Race by Just Reza</title>
+    <style>
+        :root {
+            --p1-color: #3b82f6; /* Biru untuk Player 1 */
+            --p2-color: #ef4444; /* Merah untuk Player 2 */
+            --bg-color: #f8fafc;
+            --text-color: #0f172a;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 2.5rem;
+            color: #1e293b;
+        }
+
+        /* AREA BALAPAN */
+        .track-container {
+            background-color: #334155;
+            padding: 20px;
+            border-radius: 16px;
+            margin-bottom: 40px;
+            position: relative;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        .finish-line {
+            position: absolute;
+            right: 50px;
+            top: 20px;
+            bottom: 20px;
+            width: 15px;
+            background: repeating-linear-gradient(
+                45deg,
+                #ffffff,
+                #ffffff 10px,
+                #000000 10px,
+                #000000 20px
+            );
+            z-index: 1;
+            border-radius: 4px;
+        }
+
+        .lane {
+            height: 80px;
+            background-color: #475569;
+            margin: 15px 0;
+            border-radius: 8px;
+            position: relative;
+            border: 2px dashed #94a3b8;
+            display: flex;
+            align-items: center;
+        }
+
+        .car {
+            font-size: 50px;
+            position: absolute;
+            left: 10px;
+            /* Animasi pergerakan mobil */
+            transition: left 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            z-index: 2;
+            user-select: none;
+        }
+
+        /* AREA SOAL & KONTROL */
+        .controls-container {
+            display: flex;
+            gap: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .panel {
+            flex: 1;
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .panel.p1 { border-top: 8px solid var(--p1-color); }
+        .panel.p2 { border-top: 8px solid var(--p2-color); }
+
+        .panel h2 {
+            margin-top: 0;
+            font-size: 1.5rem;
+        }
+
+        .p1 h2 { color: var(--p1-color); }
+        .p2 h2 { color: var(--p2-color); }
+
+        .question {
+            font-size: 100px;
+            font-weight: bold;
+            margin: 20px 0;
+            min-height: 150px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: auto;
+        }
+
+        .option-btn {
+            padding: 20px 10px;
+            font-size: 24px;
+            font-weight: 600;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        /* Hover efek tombol berdasarkan player */
+        .p1 .option-btn:hover { background: var(--p1-color); color: white; border-color: var(--p1-color); }
+        .p2 .option-btn:hover { background: var(--p2-color); color: white; border-color: var(--p2-color); }
+        
+        .option-btn:active { transform: scale(0.95); }
+
+        /* LAYAR KEMENANGAN */
+        .winner-screen {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(15, 23, 42, 0.9);
+            display: none; /* Disembunyikan secara default */
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            z-index: 100;
+        }
+
+        .winner-screen h1 {
+            font-size: 4rem;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .reset-btn {
+            padding: 15px 40px;
+            font-size: 24px;
+            font-weight: bold;
+            background: #10b981;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .reset-btn:hover { background: #059669; transform: scale(1.05); }
+
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>🏁 Kana Racing Challenge 🏁</h1>
+        <p>Siapa cepat dan tepat, dia yang menang!</p>
+    </div>
+
+    <!-- AREA TRACK -->
+    <div class="track-container">
+        <div class="finish-line"></div>
+        <div class="lane">
+            <div class="car" id="car-0">🏎️</div>
+        </div>
+        <div class="lane">
+            <div class="car" id="car-1">🚙</div>
+        </div>
+    </div>
+
+    <!-- AREA PEMAIN -->
+    <div class="controls-container">
+        <!-- Player 1 -->
+        <div class="panel p1">
+            <h2>Player 1 (Kiri)</h2>
+            <div class="question" id="question-0">-</div>
+            <div class="options-grid" id="options-0">
+                <!-- Tombol akan di-generate oleh JS -->
+            </div>
+        </div>
+
+        <!-- Player 2 -->
+        <div class="panel p2">
+            <h2>Player 2 (Kanan)</h2>
+            <div class="question" id="question-1">-</div>
+            <div class="options-grid" id="options-1">
+                <!-- Tombol akan di-generate oleh JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- LAYAR MENANG -->
+    <div class="winner-screen" id="winner-screen">
+        <h1 id="winner-text">Player Menang! 🎉</h1>
+        <button class="reset-btn" onclick="resetGame()">Main Lagi (Reset)</button>
+    </div>
+
+    <script>
+        // Database soal (Bisa ditambah bebas)
+        const kanaData = [
+            { kana: 'あ', answer: 'a' }, { kana: 'い', answer: 'i' }, { kana: 'う', answer: 'u' }, 
+            { kana: 'え', answer: 'e' }, { kana: 'お', answer: 'o' },
+            { kana: 'か', answer: 'ka' }, { kana: 'き', answer: 'ki' }, { kana: 'く', answer: 'ku' }, 
+            { kana: 'け', answer: 'ke' }, { kana: 'こ', answer: 'ko' },
+            { kana: 'さ', answer: 'sa' }, { kana: 'し', answer: 'shi' }, { kana: 'す', answer: 'su' }, 
+            { kana: 'せ', answer: 'se' }, { kana: 'そ', answer: 'so' },
+            { kana: 'ア', answer: 'a' }, { kana: 'イ', answer: 'i' }, { kana: 'ウ', answer: 'u' }, 
+            { kana: 'エ', answer: 'e' }, { kana: 'オ', answer: 'o' }
+        ];
+
+        let scores = [0, 0]; // Index 0 = P1, Index 1 = P2
+        const MAX_SCORE = 10; // Butuh 10 jawaban benar untuk sampai garis finish
+        let isGameOver = false;
+
+        // Fungsi untuk mengacak array (Fisher-Yates)
+        function shuffle(array) {
+            let currentIndex = array.length, randomIndex;
+            while (currentIndex != 0) {
+                randomIndex = Math.floor(Math.random() * currentIndex);
+                currentIndex--;
+                [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+            }
+            return array;
+        }
+
+        // Fungsi untuk membuat soal baru untuk player tertentu (0 atau 1)
+        function generateQuestion(playerIndex) {
+            if (isGameOver) return;
+
+            // Ambil 1 soal benar acak
+            const correctData = kanaData[Math.floor(Math.random() * kanaData.length)];
+            
+            // Ambil 2 jawaban salah
+            let wrongOptions = [];
+            while (wrongOptions.length < 2) {
+                let randomWrong = kanaData[Math.floor(Math.random() * kanaData.length)].answer;
+                if (randomWrong !== correctData.answer && !wrongOptions.includes(randomWrong)) {
+                    wrongOptions.push(randomWrong);
+                }
+            }
+
+            // Gabung dan acak posisi tombol
+            let allOptions = [correctData.answer, ...wrongOptions];
+            allOptions = shuffle(allOptions);
+
+            // Tampilkan huruf Kana di layar
+            document.getElementById(`question-${playerIndex}`).innerText = correctData.kana;
+
+            // Buat tombol pilihan ganda
+            const optionsContainer = document.getElementById(`options-${playerIndex}`);
+            optionsContainer.innerHTML = ''; // Bersihkan tombol lama
+
+            allOptions.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.innerText = opt;
+                btn.onclick = () => checkAnswer(playerIndex, opt, correctData.answer);
+                optionsContainer.appendChild(btn);
+            });
+        }
+
+        // Fungsi mengecek jawaban
+        function checkAnswer(playerIndex, selected, correct) {
+            if (isGameOver) return;
+
+            if (selected === correct) {
+                // Jika benar, tambah skor dan majukan mobil
+                scores[playerIndex]++;
+                updateCarPosition(playerIndex);
+                
+                // Cek apakah ada yang menang
+                if (scores[playerIndex] >= MAX_SCORE) {
+                    endGame(playerIndex);
+                } else {
+                    // Beri soal baru jika belum menang
+                    generateQuestion(playerIndex);
+                }
+            } else {
+                // Jika salah, ganti soal baru (hukuman waktu terbuang membaca soal baru)
+                generateQuestion(playerIndex);
+            }
+        }
+
+        // Fungsi menggerakkan mobil berdasarkan skor
+        function updateCarPosition(playerIndex) {
+            const car = document.getElementById(`car-${playerIndex}`);
+            // Pindah posisi berdasarkan persentase (Maks 100%)
+            const percentage = (scores[playerIndex] / MAX_SCORE) * 90; // 90% supaya pas di garis finish
+            car.style.left = `calc(${percentage}% + 10px)`;
+        }
+
+        // Fungsi mengakhiri game
+        function endGame(winnerIndex) {
+            isGameOver = true;
+            const winnerScreen = document.getElementById('winner-screen');
+            const winnerText = document.getElementById('winner-text');
+            const playerNum = winnerIndex + 1;
+            
+            winnerText.innerHTML = `🏎️ Player ${playerNum} Menang! 🎉`;
+            winnerScreen.style.display = 'flex';
+        }
+
+        // Fungsi reset (tombol di kiri, selesai di kanan sesuai preferensimu sebelumnya, tapi karena ini pop up tengah, saya jadikan satu tombol utama)
+        function resetGame() {
+            scores = [0, 0];
+            isGameOver = false;
+            
+            // Kembalikan posisi mobil
+            document.getElementById('car-0').style.left = '10px';
+            document.getElementById('car-1').style.left = '10px';
+            
+            // Sembunyikan layar menang
+            document.getElementById('winner-screen').style.display = 'none';
+            
+            // Buat soal baru untuk kedua player
+            generateQuestion(0);
+            generateQuestion(1);
+        }
+
+        // Mulai game saat halaman dimuat
+        window.onload = () => {
+            generateQuestion(0);
+            generateQuestion(1);
+        };
+    </script>
+</body>
+</html>
