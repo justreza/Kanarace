@@ -3,19 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kana Race Interactive</title>
+    <title>Kana Race by Just Reza</title>
+    <!-- Import Google Fonts untuk gaya yang lebih keren -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --p1-color: #00d2ff;
-            --p2-color: #ff3366;
-            --bg-main: #0f172a;
-            --bg-panel: #1e293b;
+            --p1-color: #00f0ff; /* Neon Cyan */
+            --p1-glow: rgba(0, 240, 255, 0.5);
+            --p2-color: #ff0055; /* Neon Pink/Red */
+            --p2-glow: rgba(255, 0, 85, 0.5);
+            --bg-dark: #0a0a16;
             --text-light: #f8fafc;
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg-main);
+            font-family: 'Poppins', sans-serif;
+            background: radial-gradient(circle at center, #1e1e38 0%, var(--bg-dark) 100%);
             color: var(--text-light);
             margin: 0;
             padding: 20px;
@@ -23,38 +26,50 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            min-height: 100vh;
         }
 
         .header {
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 30px;
             width: 100%;
         }
 
         .header h1 {
+            font-family: 'Orbitron', sans-serif;
             margin: 0;
-            font-size: 2.2rem;
+            font-size: 2.8rem;
             color: #ffffff;
-            letter-spacing: 2px;
+            letter-spacing: 3px;
             text-transform: uppercase;
+            text-shadow: 0 0 10px #00f0ff, 0 0 20px #00f0ff, 0 0 40px #00f0ff;
+            animation: pulseText 2s infinite alternate;
         }
 
         .header p {
-            color: #94a3b8;
-            margin-top: 5px;
+            color: #a1a1aa;
+            font-size: 1.1rem;
+            margin-top: 8px;
+            letter-spacing: 1px;
+        }
+
+        @keyframes pulseText {
+            0% { text-shadow: 0 0 10px #00f0ff, 0 0 20px #00f0ff; }
+            100% { text-shadow: 0 0 15px #00f0ff, 0 0 30px #00f0ff, 0 0 50px #00f0ff; }
         }
 
         /* TRACK AREA */
         .track-container {
             width: 100%;
             max-width: 1200px;
-            background-color: #111827;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(10px);
             padding: 20px 20px 20px 10px;
-            border-radius: 12px;
-            margin-bottom: 30px;
+            border-radius: 16px;
+            margin-bottom: 40px;
             position: relative;
-            border: 1px solid #334155;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.6), inset 0 0 20px rgba(0,0,0,0.5);
         }
 
         .finish-line {
@@ -62,24 +77,25 @@
             right: 40px;
             top: 15px;
             bottom: 15px;
-            width: 20px;
+            width: 25px;
             background: repeating-linear-gradient(
                 45deg,
                 #fff, #fff 10px,
-                #000 10px, #000 20px
+                #111 10px, #111 20px
             );
             z-index: 1;
-            border-radius: 2px;
-            border: 2px solid #334155;
+            border-radius: 4px;
+            border: 2px solid #fff;
+            box-shadow: 0 0 15px rgba(255,255,255,0.5);
         }
 
         .lane {
-            height: 70px;
-            background-color: #1e293b;
+            height: 75px;
+            background: linear-gradient(90deg, #111827 0%, #1e293b 100%);
             margin: 15px 0;
-            border-radius: 6px;
+            border-radius: 8px;
             position: relative;
-            border-bottom: 3px dashed #475569;
+            border-bottom: 4px dashed #475569;
             display: flex;
             align-items: center;
         }
@@ -89,147 +105,185 @@
         }
 
         .car {
-            font-size: 45px;
+            font-size: 50px;
             position: absolute;
             left: 10px;
-            transform: scaleX(-1); /* Membalik arah mobil ke kanan */
-            transition: left 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+            /* Efek Flip dihapus, mobil akan menghadap kanan sesuai bawaan OS Windows/Android */
+            transition: left 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
             z-index: 2;
             user-select: none;
-            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.4));
+            filter: drop-shadow(0 5px 10px rgba(0,0,0,0.6));
         }
 
-        /* PANELS */
+        /* PANELS - Glassmorphism Design */
         .controls-container {
             display: flex;
-            gap: 20px;
+            gap: 30px;
             width: 100%;
             max-width: 1200px;
         }
 
         .panel {
             flex: 1;
-            background: var(--bg-panel);
-            padding: 25px;
-            border-radius: 12px;
-            box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+            background: rgba(30, 41, 59, 0.4);
+            backdrop-filter: blur(12px);
+            padding: 30px;
+            border-radius: 20px;
             text-align: center;
             display: flex;
             flex-direction: column;
-            border: 1px solid #334155;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            position: relative;
+            overflow: hidden;
         }
 
-        .panel.p1 { border-top: 5px solid var(--p1-color); }
-        .panel.p2 { border-top: 5px solid var(--p2-color); }
+        .panel.p1 { 
+            border-top: 5px solid var(--p1-color); 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5), inset 0 30px 30px -30px var(--p1-glow);
+        }
+        .panel.p2 { 
+            border-top: 5px solid var(--p2-color); 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5), inset 0 30px 30px -30px var(--p2-glow);
+        }
 
         .panel h2 {
+            font-family: 'Orbitron', sans-serif;
             margin-top: 0;
-            font-size: 1.2rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
+            font-size: 1.5rem;
+            letter-spacing: 2px;
         }
 
-        .p1 h2 { color: var(--p1-color); }
-        .p2 h2 { color: var(--p2-color); }
+        .p1 h2 { color: var(--p1-color); text-shadow: 0 0 10px var(--p1-glow); }
+        .p2 h2 { color: var(--p2-color); text-shadow: 0 0 10px var(--p2-glow); }
 
         .question {
-            font-size: 80px;
-            font-weight: bold;
-            margin: 15px 0;
-            min-height: 120px;
+            font-size: 100px;
+            font-weight: 700;
+            margin: 20px 0;
+            min-height: 140px;
             display: flex;
             align-items: center;
             justify-content: center;
             color: #ffffff;
-            text-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            text-shadow: 0 0 20px rgba(255,255,255,0.4);
         }
 
-        /* GRID TOMBOL 2x2 */
+        /* GRID TOMBOL */
         .options-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
+            gap: 15px;
             margin-top: auto;
         }
 
         .option-btn {
-            padding: 20px 10px;
-            font-size: 28px;
+            font-family: 'Poppins', sans-serif;
+            padding: 22px 10px;
+            font-size: 32px;
             font-weight: 600;
-            border: 1px solid #475569;
-            border-radius: 8px;
-            background: #0f172a;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            background: rgba(15, 23, 42, 0.6);
             color: #f1f5f9;
             cursor: pointer;
-            transition: all 0.2s ease-in-out;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        .p1 .option-btn:hover { background: var(--p1-color); border-color: var(--p1-color); color: #000; }
-        .p2 .option-btn:hover { background: var(--p2-color); border-color: var(--p2-color); color: #fff; }
+        .p1 .option-btn:hover { 
+            background: var(--p1-color); 
+            color: #000; 
+            box-shadow: 0 0 15px var(--p1-color);
+            border-color: var(--p1-color);
+            transform: translateY(-3px);
+        }
         
-        .option-btn:active { transform: scale(0.95); }
+        .p2 .option-btn:hover { 
+            background: var(--p2-color); 
+            color: #fff; 
+            box-shadow: 0 0 15px var(--p2-color);
+            border-color: var(--p2-color);
+            transform: translateY(-3px);
+        }
+        
+        .option-btn:active { transform: scale(0.95) translateY(0); }
 
         /* MODAL KEMENANGAN */
         .winner-screen {
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(15, 23, 42, 0.95);
+            background: rgba(10, 10, 22, 0.95);
             display: none; 
             flex-direction: column;
             align-items: center;
             justify-content: center;
             color: white;
             z-index: 100;
-            backdrop-filter: blur(8px);
+            backdrop-filter: blur(15px);
         }
 
         .winner-screen h1 {
-            font-size: 3.5rem;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 4rem;
             margin-bottom: 40px;
             text-align: center;
-            text-shadow: 0 0 20px rgba(255,255,255,0.5);
+            text-transform: uppercase;
+            animation: pulseText 2s infinite alternate;
         }
 
         .modal-controls {
             display: flex;
-            gap: 20px;
+            gap: 25px;
         }
 
         .btn {
-            padding: 15px 35px;
+            font-family: 'Poppins', sans-serif;
+            padding: 16px 40px;
             font-size: 20px;
-            font-weight: bold;
+            font-weight: 700;
             border: none;
-            border-radius: 8px;
+            border-radius: 12px;
             cursor: pointer;
-            transition: transform 0.2s, background 0.2s;
+            transition: all 0.3s;
             text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         .btn-reset {
-            background: #3b82f6;
-            color: white;
+            background: transparent;
+            color: var(--p1-color);
+            border: 2px solid var(--p1-color);
+            box-shadow: inset 0 0 10px var(--p1-glow), 0 0 10px var(--p1-glow);
         }
 
-        .btn-reset:hover { background: #2563eb; transform: scale(1.05); }
+        .btn-reset:hover { background: var(--p1-color); color: #000; transform: scale(1.05); }
 
         .btn-selesai {
-            background: #ef4444;
-            color: white;
+            background: transparent;
+            color: var(--p2-color);
+            border: 2px solid var(--p2-color);
+            box-shadow: inset 0 0 10px var(--p2-glow), 0 0 10px var(--p2-glow);
         }
 
-        .btn-selesai:hover { background: #dc2626; transform: scale(1.05); }
+        .btn-selesai:hover { background: var(--p2-color); color: #fff; transform: scale(1.05); }
 
         /* LAYAR SELESAI */
         .end-screen {
             display: none;
             text-align: center;
-            margin-top: 100px;
+            margin-top: 15vh;
         }
 
         .end-screen h1 {
-            font-size: 3rem;
-            color: #38bdf8;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 3.5rem;
+            color: #00f0ff;
+            text-shadow: 0 0 20px rgba(0, 240, 255, 0.5);
+        }
+        
+        .end-screen p {
+            font-size: 1.2rem;
+            color: #94a3b8;
         }
 
     </style>
@@ -237,8 +291,8 @@
 <body>
 
     <div class="header" id="header">
-        <h1>🏎️ Kana Racing Challenge</h1>
-        <p>Adu Cepat Hiragana & Katakana</p>
+        <h1>Kana Racing</h1>
+        <p>Adu Kecepatan Hiragana & Katakana</p>
     </div>
 
     <!-- AREA TRACK -->
@@ -273,7 +327,8 @@
     <div class="winner-screen" id="winner-screen">
         <h1 id="winner-text">Player Menang! 🎉</h1>
         <div class="modal-controls">
-            <button class="btn btn-reset" onclick="resetGame()">Reset</button>
+            <!-- Reset di kiri, Selesai di kanan -->
+            <button class="btn btn-reset" onclick="resetGame()">Reset Game</button>
             <button class="btn btn-selesai" onclick="finishGame()">Selesai</button>
         </div>
     </div>
@@ -281,13 +336,12 @@
     <!-- LAYAR SELESAI -->
     <div class="end-screen" id="end-screen">
         <h1>Terima Kasih Telah Bermain!</h1>
-        <p>Silakan muat ulang halaman untuk bermain kembali.</p>
+        <p>Silakan muat ulang (refresh) halaman untuk bermain kembali.</p>
     </div>
 
     <script>
         // Database Lengkap Kana (Seion, Dakuon, Handakuon, Yoon)
         const kanaData = [
-            // Seion
             {h:'あ',k:'ア'}, {h:'い',k:'イ'}, {h:'う',k:'ウ'}, {h:'え',k:'エ'}, {h:'お',k:'オ'},
             {h:'か',k:'カ'}, {h:'き',k:'キ'}, {h:'く',k:'ク'}, {h:'け',k:'ケ'}, {h:'こ',k:'コ'},
             {h:'さ',k:'サ'}, {h:'し',k:'シ'}, {h:'す',k:'ス'}, {h:'せ',k:'セ'}, {h:'そ',k:'ソ'},
@@ -319,7 +373,7 @@
         ];
 
         let scores = [0, 0];
-        const MAX_SCORE = 15; // Jarak yang harus ditempuh
+        const MAX_SCORE = 15; // Butuh 15 jawaban benar untuk menang
         let isGameOver = false;
 
         function shuffle(array) {
@@ -335,16 +389,12 @@
         function generateQuestion(playerIndex) {
             if (isGameOver) return;
 
-            // Pilih data benar secara acak
             const correctData = kanaData[Math.floor(Math.random() * kanaData.length)];
-            
-            // Acak tipe soal (Hiragana -> Katakana ATAU Katakana -> Hiragana)
             const askHiragana = Math.random() > 0.5;
             
             const questionText = askHiragana ? correctData.h : correctData.k;
             const correctAnswer = askHiragana ? correctData.k : correctData.h;
 
-            // Cari 3 jawaban salah
             let wrongOptions = [];
             while (wrongOptions.length < 3) {
                 let randomData = kanaData[Math.floor(Math.random() * kanaData.length)];
@@ -358,7 +408,6 @@
             let allOptions = [correctAnswer, ...wrongOptions];
             allOptions = shuffle(allOptions);
 
-            // Update UI
             document.getElementById(`question-${playerIndex}`).innerText = questionText;
             const optionsContainer = document.getElementById(`options-${playerIndex}`);
             optionsContainer.innerHTML = ''; 
@@ -385,6 +434,7 @@
                     generateQuestion(playerIndex);
                 }
             } else {
+                // Penalti ganti soal jika salah
                 generateQuestion(playerIndex);
             }
         }
@@ -401,6 +451,10 @@
             const winnerText = document.getElementById('winner-text');
             const playerNum = winnerIndex + 1;
             const emoji = winnerIndex === 0 ? '🏎️' : '🚙';
+            
+            // Player 1 pakai warna Cyan, Player 2 pakai warna Pink
+            winnerText.style.color = winnerIndex === 0 ? 'var(--p1-color)' : 'var(--p2-color)';
+            winnerText.style.textShadow = winnerIndex === 0 ? '0 0 20px var(--p1-color)' : '0 0 20px var(--p2-color)';
             
             winnerText.innerHTML = `${emoji} Player ${playerNum} Menang!`;
             winnerScreen.style.display = 'flex';
