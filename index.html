@@ -29,10 +29,18 @@
             box-sizing: border-box;
         }
 
+        /* HEADER BISA DIKLIK */
         .header {
             text-align: center;
             margin-bottom: 25px;
             width: 100%;
+            cursor: pointer;
+            user-select: none;
+            transition: transform 0.2s;
+        }
+
+        .header:hover {
+            transform: scale(1.02);
         }
 
         .header h1 {
@@ -292,22 +300,23 @@
         
         .option-btn:active { transform: scale(0.92) !important; }
 
-        /* TOMBOL RESET / ULANG DI BAWAH TENGAH */
+        /* NAVIGASI BAWAH: RESET & KELUAR KE MENU */
         .footer-nav {
             margin-top: 35px;
             width: 100%;
             display: flex;
             justify-content: center;
+            gap: 20px;
         }
 
-        .btn-reset-center {
+        .btn-action-center {
             font-family: 'Orbitron', sans-serif;
             background: rgba(255, 255, 255, 0.08);
             border: 2px solid rgba(255, 255, 255, 0.3);
             color: #f8fafc;
-            padding: 14px 35px;
+            padding: 14px 28px;
             border-radius: 12px;
-            font-size: 1rem;
+            font-size: 0.95rem;
             font-weight: 700;
             cursor: pointer;
             transition: all 0.2s;
@@ -315,10 +324,19 @@
             box-shadow: 0 4px 15px rgba(0,0,0,0.3);
         }
 
-        .btn-reset-center:hover {
+        .btn-action-center:hover {
             background: rgba(255, 255, 255, 0.2);
             border-color: #ffffff;
             transform: scale(1.05);
+        }
+
+        .btn-exit {
+            border-color: rgba(255, 0, 85, 0.4);
+            color: #ff80ab;
+        }
+        .btn-exit:hover {
+            border-color: #ff0055;
+            background: rgba(255, 0, 85, 0.15);
         }
 
         /* MODAL KEMENANGAN */
@@ -339,11 +357,19 @@
 
         .winner-screen h1 { 
             font-family: 'Orbitron', sans-serif; 
-            font-size: 4.5rem; 
-            margin-bottom: 40px; 
+            font-size: 4rem; 
+            margin-bottom: 10px; 
             text-transform: uppercase;
             line-height: 1.2;
             text-shadow: 0 0 30px rgba(255,255,255,0.6);
+        }
+
+        #final-time-stat {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.5rem;
+            color: #fbbf24;
+            margin-bottom: 40px;
+            letter-spacing: 2px;
         }
 
         .modal-controls { display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; }
@@ -370,7 +396,7 @@
 </head>
 <body>
 
-    <div class="header" id="header">
+    <div class="header" id="header" onclick="goToMenu()">
         <h1>Kana Moto Racing</h1>
         <p>Adu Kecepatan Hiragana & Katakana oleh Just Reza</p>
     </div>
@@ -424,12 +450,14 @@
         </div>
 
         <div class="footer-nav">
-            <button class="btn-reset-center" onclick="resetGameDirect()">🔄 Reset / Ulangi</button>
+            <button class="btn-action-center" onclick="resetGameDirect()">🔄 Reset / Ulangi</button>
+            <button class="btn-action-center btn-exit" onclick="goToMenu()">🚪 Keluar ke Menu</button>
         </div>
     </div>
 
     <div class="winner-screen" id="winner-screen">
         <h1 id="winner-text">Menang! 🎉</h1>
+        <div id="final-time-stat">Total Waktu: 00:00</div>
         <div class="modal-controls">
             <button class="btn btn-modal-reset" onclick="resetGameModal()">Main Lagi</button>
             <button class="btn btn-menu" onclick="goToMenu()">Kembali ke Menu Awal</button>
@@ -490,7 +518,6 @@
             }
         }
 
-        // Suara klik benar
         function playCorrectSound() {
             try {
                 initAudio();
@@ -510,7 +537,6 @@
             } catch(e) {}
         }
 
-        // BGM Loop Sederhana (Volume lebih besar, square wave)
         function startBGM() {
             stopBGM();
             const notes = [220, 246.94, 261.63, 293.66, 329.63, 349.23, 392.00];
@@ -523,7 +549,7 @@
                     osc.type = 'square';
                     osc.frequency.setValueAtTime(notes[step % notes.length], audioCtx.currentTime);
                     
-                    gain.gain.setValueAtTime(0.08, audioCtx.currentTime); // Volume diset lebih tinggi
+                    gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
                     gain.gain.linearRampToValueAtTime(0.001, audioCtx.currentTime + 0.12);
                     
                     osc.connect(gain);
@@ -542,7 +568,6 @@
             }
         }
 
-        // Suara Kemenangan Fanfare
         function playVictorySound() {
             try {
                 initAudio();
@@ -565,13 +590,11 @@
                 });
             } catch(e) {}
         }
-        // ------------------------------------------
 
         function startGame() {
             initAudio();
             gameMode = document.getElementById('mode-select').value;
             
-            // Input kosong / mengambil nilai ketikan bebas
             const p1Input = document.getElementById('input-p1').value.trim();
             const p2Input = document.getElementById('input-p2').value.trim();
             
@@ -643,7 +666,6 @@
                 const btn = document.createElement('button');
                 btn.className = 'option-btn';
                 btn.innerText = opt;
-                // Menggunakan pointerdown untuk respons klik instan serentak tanpa delay
                 btn.onpointerdown = (e) => {
                     e.preventDefault();
                     checkAnswer(playerIndex, opt, correctAnswer);
@@ -696,13 +718,20 @@
 
             const winnerScreen = document.getElementById('winner-screen');
             const winnerText = document.getElementById('winner-text');
+            const finalTimeStat = document.getElementById('final-time-stat');
+            
             const emoji = winnerIndex === 0 ? '🏍️' : '🛵';
             const wName = playerNames[winnerIndex];
+            
+            let minutes = Math.floor(timer / 60).toString().padStart(2, '0');
+            let seconds = (timer % 60).toString().padStart(2, '0');
             
             winnerText.style.color = winnerIndex === 0 ? 'var(--p1-color)' : 'var(--p2-color)';
             winnerText.style.textShadow = winnerIndex === 0 ? '0 0 30px var(--p1-color)' : '0 0 30px var(--p2-color)';
             
             winnerText.innerHTML = `${emoji}<br>${wName} Menang!`;
+            finalTimeStat.innerText = `Total Waktu: ${minutes}:${seconds}`;
+            
             winnerScreen.style.display = 'flex';
         }
 
